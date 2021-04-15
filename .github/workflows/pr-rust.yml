@@ -1,0 +1,23 @@
+name: PR-Rust
+
+on:
+  pull_request:
+    branches: [ main ]
+    
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: 1.51.0
+        components: clippy
+        override: true
+    - name: Clippy deny warnings
+      run: cargo clippy --all-targets --all-features -- -D warnings
+    - name: All tests
+      run: cargo test --verbose
