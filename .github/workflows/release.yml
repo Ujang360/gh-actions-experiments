@@ -20,13 +20,13 @@ jobs:
           toolchain: 1.51.0
           target: x86_64-unknown-linux-musl
           override: true
-      - name: All tests
+      - name: Build & Push
         run: |
           # Build portable native binary
           cargo build --release --target=x86_64-unknown-linux-musl
 
           # Copy the binary to docker image
-          docker build -file Dockerfile -t $IMAGE_NAME .
+          docker build -f Dockerfile -t $IMAGE_NAME .
 
           # Login to Github docker registry
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
