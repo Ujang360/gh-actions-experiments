@@ -1,4 +1,12 @@
-pub fn hello(to: &str) -> String {
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+struct RunOptions {
+    #[structopt(long)]
+    to: String,
+}
+
+pub(crate) fn hello(to: &str) -> String {
     format!("Hello, {}!", to)
 }
 
@@ -16,5 +24,6 @@ mod tests {
 }
 
 fn main() {
-    println!("{}", hello("world!"));
+    let opt = RunOptions::from_args();
+    println!("{}", hello(&opt.to));
 }
