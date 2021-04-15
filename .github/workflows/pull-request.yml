@@ -23,7 +23,7 @@ jobs:
     - name: All tests
       run: cargo test --target=x86_64-unknown-linux-musl --verbose
   docker-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       RUSTFLAGS: "-C link-args=-s"
     steps:
