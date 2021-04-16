@@ -14,37 +14,40 @@ jobs:
     env:
       RUSTFLAGS: "-C link-args=-s"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.51.0
-          target: x86_64-unknown-linux-musl
-          override: true
-      - name: Build & Push
-        run: |
-          # Build portable native binary
-          cargo build --release --target=x86_64-unknown-linux-musl
-
-          # Copy the binary to docker image
-          docker build -f Dockerfile -t $IMAGE_NAME .
-
-          # Login to Github docker registry
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-          # Compose proper Image ID
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: 1.51.0
+        target: x86_64-unknown-linux-musl
+        override: true
+    - name: Install musl-gcc
+      run: |
+        sudo apt-get update && sudo apt-get install -y --no-install-recommends musl musl-dev musl-tools
+    - name: Build & Push
+      run: |
+        # Build portable native binary
+        cargo build --release --target=x86_64-unknown-linux-musl
+ 
+        # Copy the binary to docker image
+        docker build -f Dockerfile -t $IMAGE_NAME .
+ 
+        # Login to Github docker registry
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+ 
+        # Compose proper Image ID
+        IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
+ 
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+ 
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+ 
+        # Strip "v" prefix from tag name
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+ 
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+ 
+        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
