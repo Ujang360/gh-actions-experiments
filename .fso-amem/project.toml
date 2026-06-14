@@ -1,0 +1,6 @@
+[project]
+name = "ujang-gh-actions-experiments"
+slug = "ujang-gh-actions-experiments"
+
+[amem]
+server = "https://amem.flusci.org"
